@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CreateQuads : MonoBehaviour
+public class Block : MonoBehaviour
 {
   enum Cubeside { BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK };
   public enum BlockType { GRASS, DIRT, STONE };
 
-  public Material cubeMaterial;
   public BlockType bType;
+  GameObject parent;
+  Vector3 position;
+  public Material cubeMaterial;
 
   Vector2[,] blockUVs =
   {
@@ -22,51 +24,12 @@ public class CreateQuads : MonoBehaviour
               new Vector2( 0, 0.9375f ),new Vector2( 0.0625f, 0.9375f )}
   };
 
-  private void Start()
+  public Block(BlockType type, Vector3 pos, GameObject parent, Material mat)
   {
-    CreateCube();
-    CombineQuads();
-  }
-
-  private void CreateCube()
-  {
-    CreateQuad(Cubeside.TOP);
-    CreateQuad(Cubeside.BOTTOM);
-    CreateQuad(Cubeside.LEFT);
-    CreateQuad(Cubeside.RIGHT);
-    CreateQuad(Cubeside.FRONT);
-    CreateQuad(Cubeside.BACK);
-  }
-
-  void CombineQuads()
-  {
-    // combine all child meshes
-    MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-    CombineInstance[] combine = new CombineInstance[meshFilters.Length];
-    int i = 0;
-    while (i < meshFilters.Length)
-    {
-      combine[i].mesh = meshFilters[i].sharedMesh;
-      combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-      i++;
-    }
-
-    // create a new mesh on the parent object
-    MeshFilter mf = (MeshFilter)this.gameObject.AddComponent(typeof(MeshFilter));
-    mf.mesh = new Mesh();
-
-    // add combined meshes on children as the parent's mesh
-    mf.mesh.CombineMeshes(combine);
-
-    // create a renderer for the parent
-    MeshRenderer renderer = gameObject.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-    renderer.material = cubeMaterial;
-
-    // delete all uncombined children
-    foreach (Transform quad in this.transform)
-    {
-      Destroy(quad.gameObject);
-    }
+    bType = type;
+    this.parent = parent;
+    position = pos;
+    cubeMaterial = mat;
   }
 
   void CreateQuad(Cubeside side)
@@ -156,10 +119,23 @@ public class CreateQuads : MonoBehaviour
     mesh.RecalculateBounds();
 
     GameObject quad = new GameObject("quad");
-    quad.transform.parent = this.gameObject.transform;
+    quad.transform.position = position;
+    quad.transform.parent = parent.transform;
+
     MeshFilter meshFilter = (MeshFilter)quad.AddComponent(typeof(MeshFilter));
     meshFilter.mesh = mesh;
+
     MeshRenderer renderer = quad.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
     renderer.material = cubeMaterial;
+  }
+
+  public void Draw()
+  {
+    CreateQuad(Cubeside.TOP);
+    CreateQuad(Cubeside.BOTTOM);
+    CreateQuad(Cubeside.LEFT);
+    CreateQuad(Cubeside.RIGHT);
+    CreateQuad(Cubeside.FRONT);
+    CreateQuad(Cubeside.BACK);
   }
 }

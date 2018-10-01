@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 1588755635}
   - component: {fileID: 1588755634}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Chunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,11 +137,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1588755633}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c966b21dab8f30f46be00d49d6917b34, type: 3}
+  m_Script: {fileID: 11500000, guid: a55027643c2ac684b8081351eecd29a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cubeMaterial: {fileID: 2100000, guid: 0c30082133046084ba4f0efacdd41c72, type: 2}
-  bType: 0
 --- !u!4 &1588755635
 Transform:
   m_ObjectHideFlags: 0
@@ -225,13 +224,13 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1613914393}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 2.5}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -5.11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2134100005
 GameObject:
   m_ObjectHideFlags: 0
