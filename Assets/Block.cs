@@ -8,6 +8,7 @@ public class Block : MonoBehaviour
   public enum BlockType { GRASS, DIRT, STONE };
 
   public BlockType bType;
+  public bool isSolid;
   GameObject parent;
   Vector3 position;
   public Material cubeMaterial;
@@ -30,6 +31,7 @@ public class Block : MonoBehaviour
     this.parent = parent;
     position = pos;
     cubeMaterial = mat;
+    isSolid = true;
   }
 
   void CreateQuad(Cubeside side)
@@ -129,13 +131,31 @@ public class Block : MonoBehaviour
     renderer.material = cubeMaterial;
   }
 
+  public bool HasSolidNeighbor(int x, int y, int z)
+  {
+    Block[,,] chunks = parent.GetComponent<Chunk>().chunkData;
+    try
+    {
+      return chunks[x, y, z].isSolid;
+    }
+    catch (System.IndexOutOfRangeException ex) { };
+
+    return false;
+  }
+
   public void Draw()
   {
-    CreateQuad(Cubeside.TOP);
-    CreateQuad(Cubeside.BOTTOM);
-    CreateQuad(Cubeside.LEFT);
-    CreateQuad(Cubeside.RIGHT);
-    CreateQuad(Cubeside.FRONT);
-    CreateQuad(Cubeside.BACK);
+    if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z + 1))
+      CreateQuad(Cubeside.FRONT);
+    if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z - 1))
+      CreateQuad(Cubeside.BACK);
+    if (!HasSolidNeighbor((int)position.x, (int)position.y + 1, (int)position.z))
+      CreateQuad(Cubeside.TOP);
+    if (!HasSolidNeighbor((int)position.x, (int)position.y - 1, (int)position.z))
+      CreateQuad(Cubeside.BOTTOM);
+    if (!HasSolidNeighbor((int)position.x + 1, (int)position.y, (int)position.z))
+      CreateQuad(Cubeside.RIGHT);
+    if (!HasSolidNeighbor((int)position.x - 1, (int)position.y, (int)position.z))
+      CreateQuad(Cubeside.LEFT);
   }
 }
