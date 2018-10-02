@@ -5,7 +5,7 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
   enum Cubeside { BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK };
-  public enum BlockType { GRASS, DIRT, STONE };
+  public enum BlockType { GRASS, DIRT, STONE, AIR };
 
   public BlockType bType;
   public bool isSolid;
@@ -31,7 +31,10 @@ public class Block : MonoBehaviour
     this.parent = parent;
     position = pos;
     cubeMaterial = mat;
-    isSolid = true;
+    if (bType == BlockType.AIR)
+      isSolid = false;
+    else
+      isSolid = true;
   }
 
   void CreateQuad(Cubeside side)
@@ -127,8 +130,8 @@ public class Block : MonoBehaviour
     MeshFilter meshFilter = (MeshFilter)quad.AddComponent(typeof(MeshFilter));
     meshFilter.mesh = mesh;
 
-    MeshRenderer renderer = quad.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
-    renderer.material = cubeMaterial;
+    // MeshRenderer renderer = quad.AddComponent(typeof(MeshRenderer)) as MeshRenderer;
+    // renderer.material = cubeMaterial;
   }
 
   public bool HasSolidNeighbor(int x, int y, int z)
@@ -145,6 +148,8 @@ public class Block : MonoBehaviour
 
   public void Draw()
   {
+    if (bType == BlockType.AIR) return;
+
     if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z + 1))
       CreateQuad(Cubeside.FRONT);
     if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z - 1))
