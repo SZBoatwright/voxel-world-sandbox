@@ -9,6 +9,7 @@ public class Block : MonoBehaviour
 
   public BlockType bType;
   public bool isSolid;
+  Chunk owner;
   GameObject parent;
   Vector3 position;
   public Material cubeMaterial;
@@ -25,12 +26,12 @@ public class Block : MonoBehaviour
               new Vector2( 0, 0.9375f ),new Vector2( 0.0625f, 0.9375f )}
   };
 
-  public Block(BlockType type, Vector3 pos, GameObject parent, Material mat)
+  public Block(BlockType type, Vector3 pos, GameObject parent, Chunk o)
   {
     bType = type;
+    owner = o;
     this.parent = parent;
     position = pos;
-    cubeMaterial = mat;
     if (bType == BlockType.AIR)
       isSolid = false;
     else
@@ -136,7 +137,7 @@ public class Block : MonoBehaviour
 
   public bool HasSolidNeighbor(int x, int y, int z)
   {
-    Block[,,] chunks = parent.GetComponent<Chunk>().chunkData;
+    Block[,,] chunks = owner.chunkData;
     try
     {
       return chunks[x, y, z].isSolid;
