@@ -11,7 +11,7 @@ public class Block : MonoBehaviour
   public bool isSolid;
   Chunk owner;
   GameObject parent;
-  Vector3 position;
+  Vector3 blockPosition;
   public Material cubeMaterial;
 
   Vector2[,] blockUVs =
@@ -31,7 +31,7 @@ public class Block : MonoBehaviour
     bType = type;
     owner = o;
     this.parent = parent;
-    position = pos;
+    blockPosition = pos;
     if (bType == BlockType.AIR)
       isSolid = false;
     else
@@ -125,7 +125,7 @@ public class Block : MonoBehaviour
     mesh.RecalculateBounds();
 
     GameObject quad = new GameObject("quad");
-    quad.transform.position = position;
+    quad.transform.position = blockPosition;
     quad.transform.parent = parent.transform;
 
     MeshFilter meshFilter = (MeshFilter)quad.AddComponent(typeof(MeshFilter));
@@ -135,9 +135,50 @@ public class Block : MonoBehaviour
     // renderer.material = cubeMaterial;
   }
 
+  int ConvertBlockIndexToLocal(int i)
+  {
+    if (i == -1)
+      i = World.chunkSize - 1;
+    else if (i == World.chunkSize)
+      i = 0;
+
+    return i;
+  }
+
   public bool HasSolidNeighbor(int x, int y, int z)
   {
-    Block[,,] chunks = owner.chunkData;
+    Block[,,] chunks;
+
+    if (x < 0 || x >= World.chunkSize ||
+        y < 0 || y >= World.chunkSize ||
+        z < 0 || z >= World.chunkSize)
+    { // the block is in a neighboring chunk
+
+      Vector3 neighborChunkPosition = this.parent.transform.position +
+                                      new Vector3((x - (int)blockPosition.x) * World.chunkSize,
+                                                  (y - (int)blockPosition.y) * World.chunkSize,
+                                                  (z - (int)blockPosition.z) * World.chunkSize);
+      string neighborName = World.BuildChunkName(neighborChunkPosition);
+
+      x = ConvertBlockIndexToLocal(x);
+      y = ConvertBlockIndexToLocal(y);
+      z = ConvertBlockIndexToLocal(z);
+
+      Chunk neighborChunk;
+      if (World.chunks.TryGetValue(neighborName, out neighborChunk))
+      {
+        chunks = neighborChunk.chunkData;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    { // the block is in the current chunk
+      chunks = owner.chunkData;
+    }
+
     try
     {
       return chunks[x, y, z].isSolid;
@@ -151,17 +192,17 @@ public class Block : MonoBehaviour
   {
     if (bType == BlockType.AIR) return;
 
-    if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z + 1))
+    if (!HasSolidNeighbor((int)blockPosition.x, (int)blockPosition.y, (int)blockPosition.z + 1))
       CreateQuad(Cubeside.FRONT);
-    if (!HasSolidNeighbor((int)position.x, (int)position.y, (int)position.z - 1))
+    if (!HasSolidNeighbor((int)blockPosition.x, (int)blockPosition.y, (int)blockPosition.z - 1))
       CreateQuad(Cubeside.BACK);
-    if (!HasSolidNeighbor((int)position.x, (int)position.y + 1, (int)position.z))
+    if (!HasSolidNeighbor((int)blockPosition.x, (int)blockPosition.y + 1, (int)blockPosition.z))
       CreateQuad(Cubeside.TOP);
-    if (!HasSolidNeighbor((int)position.x, (int)position.y - 1, (int)position.z))
+    if (!HasSolidNeighbor((int)blockPosition.x, (int)blockPosition.y - 1, (int)blockPosition.z))
       CreateQuad(Cubeside.BOTTOM);
-    if (!HasSolidNeighbor((int)position.x + 1, (int)position.y, (int)position.z))
+    if (!HasSolidNeighbor((int)blockPosition.x + 1, (int)blockPosition.y, (int)blockPosition.z))
       CreateQuad(Cubeside.RIGHT);
-    if (!HasSolidNeighbor((int)position.x - 1, (int)position.y, (int)position.z))
+    if (!HasSolidNeighbor((int)blockPosition.x - 1, (int)blockPosition.y, (int)blockPosition.z))
       CreateQuad(Cubeside.LEFT);
   }
 }
