@@ -15,17 +15,25 @@ public class GraphNoise : MonoBehaviour
   void Update()
   {
     t += inc;
-    float n = Mathf.PerlinNoise(t, 1);
+    float n = fBM(t, 6, 0.8f);
     Grapher.Log(n, "Perlin1", Color.yellow);
+  }
 
-    t2 += inc2;
-    float n2 = Mathf.PerlinNoise(t2, 1);
-    Grapher.Log(n2, "Perlin2", Color.green);
+  float fBM(float t, int octaves, float persistence)
+  {
+    float total = 0;
+    float frequency = 1;
+    float amplitude = 1;
+    float maxValue = 0;
 
-    float n3;
-    n3 = (n + n2) / 2.0f;
-    n3 = Map(0, 150, 0, 1, n3);
-    Grapher.Log(n3, "Total", Color.red);
+    for (int i = 0; i < octaves; i++)
+    {
+      total += Mathf.PerlinNoise(t * frequency, 1) * amplitude;
+      maxValue += amplitude;
+      amplitude *= persistence;
+      frequency *= 2;
+    }
+    return total / maxValue;
   }
 
   float Map(float min, float max, float omin, float omax, float value)
