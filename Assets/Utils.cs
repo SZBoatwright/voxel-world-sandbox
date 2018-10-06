@@ -16,6 +16,12 @@ public class Utils : MonoBehaviour
     return (int)height;
   }
 
+  public static int GenerateStoneHeight(float x, float z)
+  {
+    float height = Map(0, maxHeight - 5, 0, 1, fBM(x * smooth * 2, z * smooth * 2, octaves + 1, persistence));
+    return (int)height;
+  }
+
   static float fBM(float x, float z, int octaves, float persistence)
   {
     float total = 0;
