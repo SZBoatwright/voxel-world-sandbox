@@ -12,9 +12,6 @@ public class World : MonoBehaviour
   public static int worldSize = 2;
   public static int radius = 1; // how many chunks to generate around the player;
   public static Dictionary<string, Chunk> chunks;
-  public Slider loadAmount;
-  public Camera cam;
-  public Button playButton;
   bool firstBuild = true;
   bool building = false;
 
@@ -77,7 +74,6 @@ public class World : MonoBehaviour
           {
             // update loader
             processCount++;
-            loadAmount.value = processCount / totalChunks * 100;
           }
           yield return null;
         }
@@ -98,7 +94,6 @@ public class World : MonoBehaviour
       {
         // update loader
         processCount++;
-        loadAmount.value = processCount / totalChunks * 100;
       }
       yield return null;
     }
@@ -106,9 +101,6 @@ public class World : MonoBehaviour
     if (firstBuild)
     {
       player.SetActive(true);
-      loadAmount.gameObject.SetActive(false);
-      cam.gameObject.SetActive(false);
-      playButton.gameObject.SetActive(false);
       firstBuild = false;
     }
     building = false;
