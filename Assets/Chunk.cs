@@ -8,6 +8,8 @@ public class Chunk
   public Material cubeMaterial;
   public Block[,,] chunkData;
   public GameObject chunk;
+  public enum ChunkStatus { DRAW, DONE, KEEP };
+  public ChunkStatus status;
 
   public Chunk(Vector3 position, Material c)
   {
@@ -62,6 +64,8 @@ public class Chunk
           // everything not yet set is air
           else
             chunkData[x, y, z] = new Block(Block.BlockType.AIR, pos, chunk.gameObject, this);
+
+          status = ChunkStatus.DRAW;
         }
   }
 
