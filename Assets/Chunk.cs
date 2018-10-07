@@ -81,6 +81,7 @@ public class Chunk
     CombineQuads();
     MeshCollider collider = chunk.gameObject.AddComponent<MeshCollider>();
     collider.sharedMesh = chunk.transform.GetComponent<MeshFilter>().mesh;
+    status = ChunkStatus.DONE;
   }
 
   void CombineQuads()
