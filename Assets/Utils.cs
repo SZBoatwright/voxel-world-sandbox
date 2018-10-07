@@ -39,6 +39,19 @@ public class Utils : MonoBehaviour
     return total / maxValue;
   }
 
+  public static float fBM3D(float x, float y, float z, float smooth, int octaves)
+  {
+    float XY = fBM(x * smooth, y * smooth, octaves, 0.5f);
+    float YZ = fBM(y * smooth, z * smooth, octaves, 0.5f);
+    float XZ = fBM(x * smooth, z * smooth, octaves, 0.5f);
+
+    float YX = fBM(y * smooth, x * smooth, octaves, 0.5f);
+    float ZY = fBM(z * smooth, y * smooth, octaves, 0.5f);
+    float ZX = fBM(z * smooth, x * smooth, octaves, 0.5f);
+
+    return (XY + YZ + XZ + YX + ZY + ZX) / 6.0f;
+  }
+
   static float Map(float newMin, float newMax, float origMin, float origMax, float value)
   {
     return Mathf.Lerp(newMin, newMax, Mathf.InverseLerp(origMin, origMax, value));
