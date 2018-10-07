@@ -31,14 +31,21 @@ public class Chunk
           int worldY = (int)(y + chunk.transform.position.y);
           int worldZ = (int)(z + chunk.transform.position.z);
 
+          // generate bedrock
+          if (worldY <= 1)
+            chunkData[x, y, z] = new Block(Block.BlockType.BEDROCK, pos, chunk.gameObject, this);
+
           // generate caves
-          if (Utils.fBM3D(worldX, worldY, worldZ, 0.1f, 3) < 0.43f)
+          else if (Utils.fBM3D(worldX, worldY, worldZ, 0.1f, 3) < 0.43f)
             chunkData[x, y, z] = new Block(Block.BlockType.AIR, pos, chunk.gameObject, this);
 
           // generate stone layer
           else if (worldY <= Utils.GenerateStoneHeight(worldX, worldZ))
           {
-            if (Utils.fBM3D(worldX, worldY, worldZ, 0.01f, 2) < 0.38f && worldY < 40) // diamond can only occur in the stone layer
+            if (Utils.fBM3D(worldX, worldY, worldZ, 0.03f, 3) < 0.41f && worldY < 20)
+              chunkData[x, y, z] = new Block(Block.BlockType.REDSTONE, pos, chunk.gameObject, this);
+
+            if (Utils.fBM3D(worldX, worldY, worldZ, 0.01f, 2) < 0.38f && worldY < 40)
               chunkData[x, y, z] = new Block(Block.BlockType.DIAMOND, pos, chunk.gameObject, this);
             else
               chunkData[x, y, z] = new Block(Block.BlockType.STONE, pos, chunk.gameObject, this);
@@ -68,6 +75,8 @@ public class Chunk
         }
 
     CombineQuads();
+    MeshCollider collider = chunk.gameObject.AddComponent<MeshCollider>();
+    collider.sharedMesh = chunk.transform.GetComponent<MeshFilter>().mesh;
   }
 
   void CombineQuads()
