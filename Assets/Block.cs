@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Block : MonoBehaviour
+public class Block
 {
   enum Cubeside { BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK };
   public enum BlockType { GRASS, DIRT, STONE, DIAMOND, REDSTONE, BEDROCK, AIR };
