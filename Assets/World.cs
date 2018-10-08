@@ -14,6 +14,7 @@ public class World : MonoBehaviour
   public static int radius = 4; // how many chunks to generate around the player;
   public static ConcurrentDictionary<string, Chunk> chunks;
   bool firstBuild = true;
+  public static List<string> toRemove = new List<string>();
 
   CoroutineQueue queue;
   public static uint maxCoroutines = 1000;
@@ -63,6 +64,7 @@ public class World : MonoBehaviour
     }
 
     queue.Run(DrawChunks());
+    queue.Run(RemoveOldChunks());
   }
 
   public static string BuildChunkName(Vector3 v)
@@ -127,11 +129,27 @@ public class World : MonoBehaviour
     {
       if (c.Value.status == Chunk.ChunkStatus.DRAW)
       {
-        Debug.Log("status is draw");
         c.Value.DrawChunk();
       }
+      if (c.Value.chunk && Vector3.Distance(player.transform.position, c.Value.chunk.transform.position) > radius * chunkSize)
+        toRemove.Add(c.Key);
 
       yield return null;
+    }
+  }
+
+  IEnumerator RemoveOldChunks()
+  {
+    for (int i = 0; i < toRemove.Count; i++)
+    {
+      string n = toRemove[i];
+      Chunk c;
+      if (chunks.TryGetValue(n, out c))
+      {
+        Destroy(c.chunk);
+        chunks.TryRemove(n, out c);
+        yield return null;
+      }
     }
   }
 }
