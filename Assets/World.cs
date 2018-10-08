@@ -15,39 +15,54 @@ public class World : MonoBehaviour
   public static ConcurrentDictionary<string, Chunk> chunks;
   bool firstBuild = true;
 
+  CoroutineQueue queue;
+  public static uint maxCoroutines = 1000;
+
+  public Vector3 lastBuildPos;
+
   private void Start()
   {
     // set player on the ground
     Vector3 playerPos = player.transform.position;
     player.transform.position = new Vector3(playerPos.x, Utils.GenerateHeight(playerPos.x, playerPos.z) + 1, playerPos.z);
+    lastBuildPos = player.transform.position;
     player.SetActive(false);
 
     firstBuild = true;
     chunks = new ConcurrentDictionary<string, Chunk>();
     this.transform.position = Vector3.zero;
     this.transform.rotation = Quaternion.identity;
+    queue = new CoroutineQueue(maxCoroutines, StartCoroutine);
 
     // build starting chunk
     BuildChunkAt((int)(player.transform.position.x / chunkSize), (int)(player.transform.position.y / chunkSize), (int)(player.transform.position.z / chunkSize));
 
     // draw the chunk
-    StartCoroutine(DrawChunks());
+    queue.Run(DrawChunks());
 
     // build a bigger world
-    StartCoroutine(
+    queue.Run(
       BuildRecursiveWorld((int)(player.transform.position.x / chunkSize), (int)(player.transform.position.y / chunkSize), (int)(player.transform.position.z / chunkSize), radius)
     );
   }
 
   private void Update()
   {
+    Vector3 movement = lastBuildPos - player.transform.position;
+
+    if (movement.magnitude > chunkSize)
+    {
+      lastBuildPos = player.transform.position;
+      BuildNearPlayer();
+    }
+
     if (!player.activeSelf)
     {
       player.SetActive(true);
       firstBuild = false;
     }
 
-    StartCoroutine(DrawChunks());
+    queue.Run(DrawChunks());
   }
 
   public static string BuildChunkName(Vector3 v)
@@ -69,12 +84,39 @@ public class World : MonoBehaviour
     }
   }
 
+  public void BuildNearPlayer()
+  {
+    StopCoroutine("BuildRecursiveWorld");
+    queue.Run(
+      BuildRecursiveWorld((int)(player.transform.position.x / chunkSize), (int)(player.transform.position.y / chunkSize), (int)(player.transform.position.z / chunkSize), radius)
+    );
+  }
+
   IEnumerator BuildRecursiveWorld(int x, int y, int z, int rad)
   {
-    Debug.Log(rad);
+    rad--;
     if (rad <= 0) yield break;
+
+    // build chunk front
+    BuildChunkAt(x, y, z + 1);
+    queue.Run(BuildRecursiveWorld(x, y, z + 1, rad));
+    // build chunk back
     BuildChunkAt(x, y, z - 1);
-    StartCoroutine(BuildRecursiveWorld(x, y, z - 1, rad - 1));
+    queue.Run(BuildRecursiveWorld(x, y, z - 1, rad));
+
+    // build chunk left
+    BuildChunkAt(x - 1, y, z);
+    queue.Run(BuildRecursiveWorld(x - 1, y, z, rad));
+    // build chunk back
+    BuildChunkAt(x + 1, y, z);
+    queue.Run(BuildRecursiveWorld(x + 1, y, z, rad));
+
+    // build chunk top
+    BuildChunkAt(x, y + 1, z);
+    queue.Run(BuildRecursiveWorld(x, y + 1, z, rad));
+    // build chunk bottom
+    BuildChunkAt(x, y - 1, z);
+    queue.Run(BuildRecursiveWorld(x, y - 1, z, rad));
 
     yield return null;
   }
@@ -85,6 +127,7 @@ public class World : MonoBehaviour
     {
       if (c.Value.status == Chunk.ChunkStatus.DRAW)
       {
+        Debug.Log("status is draw");
         c.Value.DrawChunk();
       }
 

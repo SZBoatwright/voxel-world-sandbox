@@ -64,9 +64,8 @@ public class Chunk
           // everything not yet set is air
           else
             chunkData[x, y, z] = new Block(Block.BlockType.AIR, pos, chunk.gameObject, this);
-
-          status = ChunkStatus.DRAW;
         }
+    status = ChunkStatus.DRAW;
   }
 
   public void DrawChunk()
