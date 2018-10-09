@@ -2,6 +2,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
+[Serializable]
+class BlockData
+{
+  public Block.BlockType[,,] matrix;
+
+  public BlockData() { }
+
+  public BlockData(Block[,,] b)
+  {
+    matrix = new Block.BlockType[World.chunkSize, World.chunkSize, World.chunkSize];
+    for (int z = 0; z < World.chunkSize; z++)
+      for (int y = 0; y < World.chunkSize; y++)
+        for (int x = 0; x < World.chunkSize; x++)
+        {
+          matrix[x, y, z] = b[x, y, z].bType;
+        }
+  }
+}
 
 public class Chunk
 {
@@ -10,6 +31,7 @@ public class Chunk
   public GameObject chunk;
   public enum ChunkStatus { DRAW, DONE, KEEP };
   public ChunkStatus status;
+  BlockData blockData;
 
   public Chunk(Vector3 position, Material c)
   {
@@ -19,8 +41,53 @@ public class Chunk
     BuildChunk();
   }
 
+  string BuildChunkFileName(Vector3 v)
+  {
+    return Application.persistentDataPath + "/savedata/Chunk_" +
+                                            (int)v.x + (int)v.y + (int)v.z + "_" +
+                                            World.chunkSize + "_" +
+                                            World.radius +
+                                            ".dat";
+  }
+
+  bool Load()
+  {
+    string fileName = BuildChunkFileName(chunk.transform.position);
+    if (File.Exists(fileName))
+    {
+      BinaryFormatter binaryFormatter = new BinaryFormatter();
+      FileStream file = File.Open(fileName, FileMode.Open);
+      blockData = new BlockData();
+      blockData = (BlockData)binaryFormatter.Deserialize(file);
+      file.Close();
+      // Debug.Log("Loading chunk from file: " + fileName);
+      return true;
+    }
+    return false;
+  }
+
+  public void Save()
+  {
+    string fileName = BuildChunkFileName(chunk.transform.position);
+
+    if (!File.Exists(fileName))
+    {
+      Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+    }
+    BinaryFormatter binaryFormatter = new BinaryFormatter();
+    FileStream file = File.Open(fileName, FileMode.OpenOrCreate);
+    blockData = new BlockData(chunkData);
+    binaryFormatter.Serialize(file, blockData);
+    file.Close();
+    // Debug.Log("Saving chunk from: " + fileName);
+  }
+
   void BuildChunk()
   {
+
+    bool dataFromFile = false;
+    dataFromFile = Load();
+
     chunkData = new Block[World.chunkSize, World.chunkSize, World.chunkSize];
 
     for (int z = 0; z < World.chunkSize; z++)
@@ -32,6 +99,12 @@ public class Chunk
           int worldX = (int)(x + chunk.transform.position.x);
           int worldY = (int)(y + chunk.transform.position.y);
           int worldZ = (int)(z + chunk.transform.position.z);
+
+          if (dataFromFile)
+          {
+            chunkData[x, y, z] = new Block(blockData.matrix[x, y, z], pos, chunk.gameObject, this);
+            continue;
+          }
 
           // generate bedrock
           if (worldY <= 1)

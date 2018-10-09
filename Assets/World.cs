@@ -147,6 +147,7 @@ public class World : MonoBehaviour
       if (chunks.TryGetValue(n, out c))
       {
         Destroy(c.chunk);
+        c.Save();
         chunks.TryRemove(n, out c);
         yield return null;
       }
