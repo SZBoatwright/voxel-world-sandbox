@@ -211,4 +211,13 @@ public class Block
     if (!HasSolidNeighbor((int)blockPosition.x - 1, (int)blockPosition.y, (int)blockPosition.z))
       CreateQuad(Cubeside.LEFT);
   }
+
+  public void SetType(BlockType b)
+  {
+    bType = b;
+    if (bType == BlockType.AIR)
+      isSolid = false;
+    else
+      isSolid = true;
+  }
 }
