@@ -156,6 +156,14 @@ public class Chunk
     status = ChunkStatus.DONE;
   }
 
+  public void RedrawChunk()
+  {
+    GameObject.DestroyImmediate(chunk.GetComponent<MeshFilter>());
+    GameObject.DestroyImmediate(chunk.GetComponent<MeshRenderer>());
+    GameObject.DestroyImmediate(chunk.GetComponent<Collider>());
+    DrawChunk();
+  }
+
   void CombineQuads()
   {
     // combine all child meshes

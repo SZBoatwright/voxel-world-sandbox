@@ -381,7 +381,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 432497628}
-  useMousePosiiton: 1
+  useMousePosiiton: 0
 --- !u!1 &1921290760
 GameObject:
   m_ObjectHideFlags: 0
