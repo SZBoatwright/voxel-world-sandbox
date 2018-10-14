@@ -254,6 +254,12 @@ public class Block
     if (currentHealth == -1) return false;
     currentHealth--;
     health++;
+
+    if (currentHealth == (blockHealthMax[(int)bType] - 1))
+    {
+      owner.mb.StartCoroutine(owner.mb.HealBlock(blockPosition));
+    }
+
     if (currentHealth <= 0)
     {
       SetType(BlockType.AIR);
@@ -262,5 +268,12 @@ public class Block
     }
     owner.RedrawChunk();
     return false;
+  }
+
+  public void Reset()
+  {
+    health = BlockType.NOCRACK;
+    currentHealth = blockHealthMax[(int)bType];
+    owner.RedrawChunk();
   }
 }
