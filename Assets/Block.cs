@@ -270,6 +270,13 @@ public class Block
     return false;
   }
 
+  public bool BuildBlock(BlockType type)
+  {
+    SetType(type);
+    owner.RedrawChunk();
+    return true;
+  }
+
   public void Reset()
   {
     health = BlockType.NOCRACK;

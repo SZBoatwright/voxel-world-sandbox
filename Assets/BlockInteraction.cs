@@ -11,7 +11,7 @@ public class BlockInteraction : MonoBehaviour
 
   void Update()
   {
-    if (Input.GetMouseButtonDown(0))
+    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
     {
       RaycastHit raycastHit;
       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -21,15 +21,26 @@ public class BlockInteraction : MonoBehaviour
             Physics.Raycast(cam.transform.position, cam.transform.forward, out raycastHit, 10)
          )
       {
-        Vector3 hitBlock = raycastHit.point - raycastHit.normal / 2.0f;
+        Chunk hitChunk;
+        if (!World.chunks.TryGetValue(raycastHit.collider.gameObject.name, out hitChunk)) return;
+
+        Vector3 hitBlock;
+        if (Input.GetMouseButtonDown(0))
+          hitBlock = raycastHit.point - raycastHit.normal / 2.0f;
+        else
+          hitBlock = raycastHit.point + raycastHit.normal / 2.0f;
 
         int x = (int)(Mathf.Round(hitBlock.x) - raycastHit.collider.gameObject.transform.position.x);
         int y = (int)(Mathf.Round(hitBlock.y) - raycastHit.collider.gameObject.transform.position.y);
         int z = (int)(Mathf.Round(hitBlock.z) - raycastHit.collider.gameObject.transform.position.z);
 
-        Chunk hitChunk;
+        bool update = false;
+        if (Input.GetMouseButtonDown(0))
+          update = hitChunk.chunkData[x, y, z].HitBlock();
+        else
+          update = hitChunk.chunkData[x, y, z].BuildBlock(Block.BlockType.STONE);
 
-        if (World.chunks.TryGetValue(raycastHit.collider.gameObject.name, out hitChunk) && hitChunk.chunkData[x, y, z].HitBlock())
+        if (update)
         {
           List<string> updates = new List<string>();
           float thisChunkx = hitChunk.chunk.transform.position.x;
