@@ -9,9 +9,9 @@ public class Block
 
   public BlockType bType;
   public bool isSolid;
-  Chunk owner;
+  public Chunk owner;
   GameObject parent;
-  Vector3 blockPosition;
+  public Vector3 blockPosition;
   public Material cubeMaterial;
 
   public BlockType health;

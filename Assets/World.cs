@@ -123,6 +123,37 @@ public class World : MonoBehaviour
     yield return null;
   }
 
+  public static Block GetWorldBlock(Vector3 pos)
+  {
+    int chunkx, chunky, chunkz;
+
+    if (pos.x < 0)
+      chunkx = (int)(Mathf.Round(pos.x - chunkSize) / (float)chunkSize) * chunkSize;
+    else
+      chunkx = (int)(Mathf.Round(pos.x) / (float)chunkSize) * chunkSize;
+
+    if (pos.y < 0)
+      chunky = (int)(Mathf.Round(pos.y - chunkSize) / (float)chunkSize) * chunkSize;
+    else
+      chunky = (int)(Mathf.Round(pos.y) / (float)chunkSize) * chunkSize;
+
+    if (pos.z < 0)
+      chunkz = (int)(Mathf.Round(pos.z - chunkSize) / (float)chunkSize) * chunkSize;
+    else
+      chunkz = (int)(Mathf.Round(pos.z) / (float)chunkSize) * chunkSize;
+
+    int blockx = (int)Mathf.Abs((float)Mathf.Round(pos.x) - chunkx);
+    int blocky = (int)Mathf.Abs((float)Mathf.Round(pos.y) - chunky);
+    int blockz = (int)Mathf.Abs((float)Mathf.Round(pos.z) - chunkz);
+
+    string chunkName = BuildChunkName(new Vector3(chunkx, chunky, chunkz));
+    Chunk chunk;
+    if (chunks.TryGetValue(chunkName, out chunk))
+      return chunk.chunkData[blockx, blocky, blockz];
+    else
+      return null;
+  }
+
   IEnumerator DrawChunks()
   {
     foreach (KeyValuePair<string, Chunk> c in chunks)
