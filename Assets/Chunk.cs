@@ -33,6 +33,7 @@ public class Chunk
   public ChunkStatus status;
   public ChunkMB mb;
   BlockData blockData;
+  public bool changed = false;
 
   public Chunk(Vector3 position, Material c)
   {

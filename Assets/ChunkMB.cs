@@ -10,6 +10,7 @@ public class ChunkMB : MonoBehaviour
   public void SetOwner(Chunk o)
   {
     owner = o;
+    InvokeRepeating("SaveProgress", 10, 1000);
   }
   public IEnumerator HealBlock(Vector3 bPos)
   {
@@ -22,6 +23,15 @@ public class ChunkMB : MonoBehaviour
     if (owner.chunkData[x, y, z].bType != Block.BlockType.AIR)
     {
       owner.chunkData[x, y, z].Reset();
+    }
+  }
+
+  void SaveProgress()
+  {
+    if (owner.changed)
+    {
+      owner.Save();
+      owner.changed = false;
     }
   }
 }
