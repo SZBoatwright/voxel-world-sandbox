@@ -122,7 +122,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
       propertyPath: m_LocalPosition.y
@@ -272,6 +272,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1646402009}
   textureAtlas: {fileID: 2100000, guid: 0c30082133046084ba4f0efacdd41c72, type: 2}
+  fluidTexture: {fileID: 2100000, guid: 77c8f48914809004290c1bebcaabe5f8, type: 2}
   lastBuildPos: {x: 0, y: 0, z: 0}
 --- !u!1 &1556501321
 GameObject:

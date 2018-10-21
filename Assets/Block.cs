@@ -5,7 +5,7 @@ using UnityEngine;
 public class Block
 {
   enum Cubeside { BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK };
-  public enum BlockType { GRASS, DIRT, STONE, DIAMOND, REDSTONE, BEDROCK, NOCRACK, CRACK1, CRACK2, CRACK3, CRACK4, AIR };
+  public enum BlockType { GRASS, DIRT, WATER, STONE, DIAMOND, REDSTONE, BEDROCK, NOCRACK, CRACK1, CRACK2, CRACK3, CRACK4, AIR };
 
   public BlockType bType;
   public bool isSolid;
@@ -16,7 +16,7 @@ public class Block
 
   public BlockType health;
   int currentHealth;
-  int[] blockHealthMax = { 3, 3, 4, 4, 4, -1, 0, 0, 0, 0, 0, 0 }; // max health of each blocktype, in order
+  int[] blockHealthMax = { 3, 3, 8, 4, 4, 4, -1, 0, 0, 0, 0, 0, 0 }; // max health of each blocktype, in order
 
   Vector2[,] blockUVs =
   {
@@ -26,6 +26,8 @@ public class Block
                     new Vector2( 0.1875f, 1.0f ),new Vector2( 0.25f, 1.0f )},
     /*DIRT*/			{new Vector2( 0.125f, 0.9375f ), new Vector2( 0.1875f, 0.9375f),
                     new Vector2( 0.125f, 1.0f ),new Vector2( 0.1875f, 1.0f )},
+    /*WATER*/			{new Vector2( 0.875f, 0.125f ), new Vector2( 0.9375f, 0.125f),
+                    new Vector2( 0.875f, 0.1875f ),new Vector2( 0.9375f, 0.1875f )},
     /*STONE*/			{new Vector2( 0.5f, 0.6875f ), new Vector2( 0.5625f, 0.6875f),
                     new Vector2( 0.5f, 0.75f ),new Vector2( 0.5625f, 0.75f )},
     /*DIAMOND*/   {new Vector2( 0.125f, 0.75f ), new Vector2( 0.1875f, 0.75f),
@@ -46,19 +48,13 @@ public class Block
                  new Vector2(0.1875f,0.0625f), new Vector2(0.25f,0.0625f)}
   };
 
-  public Block(BlockType type, Vector3 pos, GameObject parent, Chunk o)
+  public Block(BlockType type, Vector3 pos, GameObject parent, Chunk owner)
   {
     bType = type;
-    owner = o;
+    this.owner = owner;
     this.parent = parent;
     blockPosition = pos;
-    if (bType == BlockType.AIR)
-      isSolid = false;
-    else
-      isSolid = true;
-
-    health = BlockType.NOCRACK;
-    currentHealth = blockHealthMax[(int)bType];
+    SetType(type);
   }
 
   void CreateQuad(Cubeside side)
@@ -178,12 +174,26 @@ public class Block
 
   public bool HasSolidNeighbor(int x, int y, int z)
   {
+    try
+    {
+      Block neighborBlock = GetBlock(x, y, z);
+      if (neighborBlock != null)
+        return (neighborBlock.isSolid || neighborBlock.bType == bType); // this or statement ensures that similar semi-trans blocks next to each other will not draw quads between each other
+    }
+    catch (System.IndexOutOfRangeException) { };
+
+    return false;
+  }
+
+  public Block GetBlock(int x, int y, int z)
+  {
     Block[,,] chunks;
 
+    // the block is in a neighboring chunk
     if (x < 0 || x >= World.chunkSize ||
         y < 0 || y >= World.chunkSize ||
         z < 0 || z >= World.chunkSize)
-    { // the block is in a neighboring chunk
+    {
 
       Vector3 neighborChunkPosition = this.parent.transform.position +
                                       new Vector3((x - (int)blockPosition.x) * World.chunkSize,
@@ -202,21 +212,14 @@ public class Block
       }
       else
       {
-        return false;
+        return null;
       }
     }
+    // the block is in the current chunk
     else
-    { // the block is in the current chunk
       chunks = owner.chunkData;
-    }
 
-    try
-    {
-      return chunks[x, y, z].isSolid;
-    }
-    catch (System.IndexOutOfRangeException ex) { };
-
-    return false;
+    return chunks[x, y, z];
   }
 
   public void Draw()
@@ -240,10 +243,15 @@ public class Block
   public void SetType(BlockType b)
   {
     bType = b;
-    if (bType == BlockType.AIR)
+    if (bType == BlockType.AIR || bType == BlockType.WATER)
       isSolid = false;
     else
       isSolid = true;
+
+    if (bType == BlockType.WATER)
+      parent = owner.fluid.gameObject;
+    else
+      parent = owner.chunk.gameObject;
 
     health = BlockType.NOCRACK;
     currentHealth = blockHealthMax[(int)bType];

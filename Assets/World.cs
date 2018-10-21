@@ -8,6 +8,7 @@ public class World : MonoBehaviour
 {
   public GameObject player;
   public Material textureAtlas;
+  public Material fluidTexture;
   public static int columnHeight = 16;
   public static int chunkSize = 16;
   public static int worldSize = 2;
@@ -80,8 +81,9 @@ public class World : MonoBehaviour
 
     if (!chunks.TryGetValue(name, out c))
     {
-      c = new Chunk(chunkPosition, textureAtlas);
+      c = new Chunk(chunkPosition, textureAtlas, fluidTexture);
       c.chunk.transform.parent = transform;
+      c.fluid.transform.parent = this.transform;
       chunks.TryAdd(c.chunk.name, c);
     }
   }
