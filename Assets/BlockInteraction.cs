@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,10 +7,29 @@ public class BlockInteraction : MonoBehaviour
 {
 
   public GameObject cam;
+
   [Tooltip("Will the raycast sent out for placing/deleting blocks be sent from camera or mouse position?")]
   [SerializeField] bool useMousePosiiton;
 
+  Block.BlockType buildType = Block.BlockType.STONE;
+
   void Update()
+  {
+    ChangeBlockType();
+    BuildBlock();
+  }
+
+  private void ChangeBlockType()
+  {
+    if (Input.GetKeyDown("1"))
+      buildType = Block.BlockType.STONE;
+    if (Input.GetKeyDown("2"))
+      buildType = Block.BlockType.DIRT;
+    if (Input.GetKeyDown("3"))
+      buildType = Block.BlockType.WATER;
+  }
+
+  private void BuildBlock()
   {
     if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
     {
@@ -37,7 +57,7 @@ public class BlockInteraction : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
           update = block.HitBlock();
         else
-          update = block.BuildBlock(Block.BlockType.STONE);
+          update = block.BuildBlock(buildType);
 
         if (update)
         {
