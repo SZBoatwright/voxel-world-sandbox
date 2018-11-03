@@ -15,7 +15,7 @@ public class Block
   public Material cubeMaterial;
 
   public BlockType health;
-  int currentHealth;
+  public int currentHealth;
   int[] blockHealthMax = { 3, 3, 8, 4, 4, 4, -1, 0, 0, 0, 0, 0, 0 }; // max health of each blocktype, in order
 
   Vector2[,] blockUVs =
@@ -280,8 +280,15 @@ public class Block
 
   public bool BuildBlock(BlockType type)
   {
-    SetType(type);
-    owner.RedrawChunk();
+    if (type == BlockType.WATER)
+    {
+      owner.mb.StartCoroutine(owner.mb.Flow(this, BlockType.WATER, blockHealthMax[(int)BlockType.WATER], 10));
+    }
+    else
+    {
+      SetType(type);
+      owner.RedrawChunk();
+    }
     return true;
   }
 
